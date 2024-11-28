@@ -1,21 +1,18 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
 
-#include <windows.h>
+#include <WINDOWS.H>
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-typedef unsigned long long u64;
-typedef signed long long i64;
-
-static void ToggleBorderless(HWND hwnd)
+static VOID ToggleBorderless(HWND hwnd)
 {
-	static i64 style_mask = WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME;
-	static i64 exstyle_mask = WS_EX_CLIENTEDGE | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_DLGMODALFRAME;
+	static LONG_PTR style_mask = WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME;
+	static LONG_PTR exstyle_mask = WS_EX_CLIENTEDGE | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_DLGMODALFRAME;
 	static struct undo {
 		HWND hwnd;
-		i64 style;
-		i64 exstyle;
+		LONG_PTR style;
+		LONG_PTR exstyle;
 	} undo;
 	BOOL revert = hwnd == undo.hwnd;
 	if (undo.hwnd) {
@@ -35,7 +32,7 @@ static void ToggleBorderless(HWND hwnd)
 		UpdateWindow(undo.hwnd);
 	}
 }
-static i64 KeyboardProc(int code, u64 wparam, i64 lparam)
+static LRESULT KeyboardProc(INT code, WPARAM wparam, LPARAM lparam)
 {
 	if (code < 0) { // "If code is less than zero, the hook procedure must pass the message to..."
 		return CallNextHookEx(NULL, code, wparam, lparam);
@@ -50,9 +47,9 @@ static i64 KeyboardProc(int code, u64 wparam, i64 lparam)
 	}
 	return CallNextHookEx(NULL, code, wparam, lparam);
 }
-int wWinMain(HINSTANCE instance, HINSTANCE previnstance, WCHAR *args, int show)
+INT wWinMain(HINSTANCE instance, HINSTANCE previnstance, WCHAR *args, INT show)
 {
-	static const WCHAR *class = L"borderlessAppClass";
+	static CONST WCHAR *class = L"borderlessAppClass";
 	HANDLE mutex = CreateMutexW(NULL, 0, class);
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
 		if (MessageBoxW(NULL, L"Quit borderless?", L"borderless", MB_YESNO | MB_ICONQUESTION | MB_TASKMODAL) == IDYES) {
