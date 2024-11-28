@@ -29,7 +29,7 @@ static void ToggleBorderless(handle hwnd)
 		SendMessageW(undo.hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
 		SetWindowLongPtrW(undo.hwnd, GWL_STYLE, undo.style);
 		SetWindowLongPtrW(undo.hwnd, GWL_EXSTYLE, undo.exstyle);
-		UpdateWindow(undo.hwnd);
+		//UpdateWindow(undo.hwnd);
 		undo = (struct undo){0};
 	}
 	if (hwnd && !revert) {
@@ -53,7 +53,7 @@ static i64 KeyboardProc(int code, u64 wparam, i64 lparam)
 		!!(kbd->flags & LLKHF_ALTDOWN) && // alt is pressed
 		!!!(GetAsyncKeyState(kbd->vkCode) & 0x8000)) { // F11 key down is not a key repeat
 			ToggleBorderless(GetForegroundWindow());
-			return 1; // consume message
+			return 1; // consume keyboard input
 	}
 	return CallNextHookEx(null, code, wparam, lparam);
 }
@@ -80,13 +80,10 @@ int wWinMain(void *instance, void *_, u16 *args, int show)
 		DispatchMessageW(&msg);
 		if (msg.message == WM_DESTROY) PostQuitMessage(0);
 	}
-	//CloseHandle(hwnd);
 	UnhookWindowsHookEx(hook);
-	//CloseHandle(hook);
-	ToggleBorderless(0);
+	ToggleBorderless(0); // undo before quitting
 	if (mutex) {
 		ReleaseMutex(mutex);
-		//CloseHandle(mutex);
 	}
 	return msg.wParam;
 }
