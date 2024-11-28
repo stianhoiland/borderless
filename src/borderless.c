@@ -5,22 +5,19 @@
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-typedef wchar_t             u16; // "Microsoft implements wchar_t as a two-byte unsigned value."
-typedef unsigned long long  u64;
-typedef signed long long    i64;
-typedef signed int         bool;
-typedef void *           handle;
+typedef unsigned long long u64;
+typedef signed long long i64;
 
-static void ToggleBorderless(handle hwnd)
+static void ToggleBorderless(HWND hwnd)
 {
 	static i64 style_mask = WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME;
 	static i64 exstyle_mask = WS_EX_CLIENTEDGE | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_DLGMODALFRAME;
 	static struct undo {
-		handle hwnd;
+		HWND hwnd;
 		i64 style;
 		i64 exstyle;
 	} undo;
-	bool revert = hwnd == undo.hwnd;
+	BOOL revert = hwnd == undo.hwnd;
 	if (undo.hwnd) {
 		SendMessageW(undo.hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
 		SetWindowLongPtrW(undo.hwnd, GWL_STYLE, undo.style);
@@ -53,10 +50,10 @@ static i64 KeyboardProc(int code, u64 wparam, i64 lparam)
 	}
 	return CallNextHookEx(NULL, code, wparam, lparam);
 }
-int wWinMain(void *instance, void *_, u16 *args, int show)
+int wWinMain(HINSTANCE instance, HINSTANCE previnstance, WCHAR *args, int show)
 {
-	static const u16 *class = L"borderlessAppClass";
-	handle mutex = CreateMutexW(NULL, 0, class);
+	static const WCHAR *class = L"borderlessAppClass";
+	HANDLE mutex = CreateMutexW(NULL, 0, class);
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
 		if (MessageBoxW(NULL, L"Quit borderless?", L"borderless", MB_YESNO | MB_ICONQUESTION | MB_TASKMODAL) == IDYES) {
 			PostMessageW(FindWindowExW(HWND_MESSAGE, NULL, class, NULL), WM_DESTROY, NULL, NULL);
@@ -68,8 +65,8 @@ int wWinMain(void *instance, void *_, u16 *args, int show)
 	wcex.lpfnWndProc = DefWindowProcW;
 	wcex.hInstance = instance;
 	wcex.lpszClassName = class;
-	handle hwnd = CreateWindowExW(0, RegisterClassExW(&wcex), NULL, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, HWND_MESSAGE, NULL, instance, NULL);
-	handle hook = SetWindowsHookExW(WH_KEYBOARD_LL, (HOOKPROC)KeyboardProc, NULL, 0);
+	HWND hwnd = CreateWindowExW(0, RegisterClassExW(&wcex), NULL, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, HWND_MESSAGE, NULL, instance, NULL);
+	HHOOK hook = SetWindowsHookExW(WH_KEYBOARD_LL, (HOOKPROC)KeyboardProc, NULL, 0);
 	MessageBoxW(hwnd, L"Press Alt+F11 to toggle maximized borderless window.\nRe-launch borderless.exe to quit.", L"borderless", MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
 	MSG msg = {0};
 	while (GetMessageW(&msg, NULL, 0, 0) > 0) {
