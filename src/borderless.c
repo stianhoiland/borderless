@@ -50,7 +50,7 @@ static LRESULT KeyboardProc(INT code, WPARAM wparam, LPARAM lparam)
 static LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	if (message == WM_CREATE) MessageBoxW(hwnd, L"Press Alt+F11 to toggle maximized borderless window.\nRe-launch borderless.exe to quit.", L"borderless", MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
-	if (message == WM_CLOSE) ToggleBorderless(0), PostQuitMessage(0);
+	if (message == WM_CLOSE) ToggleBorderless(0);
 	return DefWindowProcW(hwnd, message, wparam, lparam);
 }
 INT wWinMain(HINSTANCE instance, HINSTANCE previnstance, WCHAR *args, INT show)
