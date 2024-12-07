@@ -1,3 +1,4 @@
+//#define _UNICODE
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
 
@@ -34,11 +35,9 @@ static VOID ToggleBorderless(HWND hwnd)
 }
 static LRESULT KeyboardProc(INT code, WPARAM wparam, LPARAM lparam)
 {
-	if (code < 0) { // "If code is less than zero, the hook procedure must pass the message to..."
-		return CallNextHookEx(NULL, code, wparam, lparam);
-	}
 	KBDLLHOOKSTRUCT *kbd = lparam;
-	if (kbd->vkCode == VK_F11 && // key code is F11
+	if (code >= 0 && // "If code is less than zero, the hook procedure must pass the message..."
+		kbd->vkCode == VK_F11 && // key code is F11
 		!(kbd->flags & LLKHF_UP) && // key was pressed, not released
 		!!(kbd->flags & LLKHF_ALTDOWN) && // alt is pressed
 		!!!(GetAsyncKeyState(kbd->vkCode) & 0x8000)) { // F11 key down is not a key repeat
@@ -47,11 +46,11 @@ static LRESULT KeyboardProc(INT code, WPARAM wparam, LPARAM lparam)
 	}
 	return CallNextHookEx(NULL, code, wparam, lparam);
 }
-static LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+static LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	if (message == WM_CREATE) MessageBoxW(hwnd, L"Press Alt+F11 to toggle maximized borderless window.\nRe-launch borderless.exe to quit.", L"borderless", MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
-	if (message == WM_CLOSE) ToggleBorderless(0);
-	return DefWindowProcW(hwnd, message, wparam, lparam);
+	if (msg == WM_CREATE) MessageBoxW(hwnd, L"Press Alt+F11 to toggle maximized borderless window.\nRe-launch borderless.exe to quit.", L"borderless", MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
+	if (msg == WM_CLOSE) ToggleBorderless(0);
+	return DefWindowProcW(hwnd, msg, wparam, lparam);
 }
 INT wWinMain(HINSTANCE instance, HINSTANCE previnstance, WCHAR *args, INT show)
 {
@@ -65,11 +64,10 @@ INT wWinMain(HINSTANCE instance, HINSTANCE previnstance, WCHAR *args, INT show)
 	}
 	HWND hwnd = CreateWindowExW(0, RegisterClassExW(&(WNDCLASSEXW){.cbSize = sizeof(WNDCLASSEXW), .lpfnWndProc = WindowProc, .hInstance = instance, .lpszClassName = class}), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, instance, NULL);
 	HHOOK hook = SetWindowsHookExW(WH_KEYBOARD_LL, (HOOKPROC)KeyboardProc, NULL, 0);
-	MSG msg = {0};
-	while (GetMessageW(&msg, hwnd, 0, 0) > 0) DispatchMessageW(&msg);
+	for (MSG msg; GetMessageW(&msg, hwnd, 0, 0) > 0;) DispatchMessageW(&msg);
 	UnhookWindowsHookEx(hook);
 	if (mutex) {
 		ReleaseMutex(mutex);
 	}
-	return msg.wParam;
+	return 0;
 }
