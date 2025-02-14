@@ -1,4 +1,4 @@
-# ![borderless](https://github.com/user-attachments/assets/0c04d554-427b-4ead-8799-fc15233d45f9) borderless
+# ![borderless](https://github.com/user-attachments/assets/0c04d554-427b-4ead-8799-fc15233d45f9) borderless by Stian
 
 The smallest most lightweight borderless gaming utility in the world. An exercise in Win32 minimalism. Written in the Lord's language, C.
 
@@ -8,7 +8,7 @@ After launching borderless.exe, press Alt+F11 to toggle maximized borderless win
 
 ## How to install
 
-Download borderless.exe in the Releases section. Double click to run. Delete to uninstall. The executable leaves no trace behind.
+Download [the latest borderless.exe](https://github.com/stianhoiland/borderless/releases/latest) in the Releases section. Double click to run. Delete to uninstall. The executable leaves no trace behind.
 
 ## Credits
 
